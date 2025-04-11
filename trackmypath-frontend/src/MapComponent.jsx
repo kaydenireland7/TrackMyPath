@@ -35,7 +35,7 @@ const MapComponent = () => {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={position}
-        zoom={15}
+        zoom={10}
       >
         <Marker position={position} />
       </GoogleMap>
