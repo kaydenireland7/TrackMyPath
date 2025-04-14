@@ -3,11 +3,13 @@ using System.Collections.Generic;
 
 namespace PathAPI.Models;
 
-public partial class Location
+public partial class Photo
 {
-    public string Id { get; set; } = null!;
+    public int Id { get; set; }
 
     public int TripId { get; set; }
+
+    public string FileUrl { get; set; } = null!;
 
     public DateTime Timestamp { get; set; }
 
@@ -15,5 +17,7 @@ public partial class Location
 
     public decimal Longitude { get; set; }
 
-    public double? Accuracy { get; set; }
+    public string? Caption { get; set; }
+
+    public virtual Trip Trip { get; set; } = null!;
 }

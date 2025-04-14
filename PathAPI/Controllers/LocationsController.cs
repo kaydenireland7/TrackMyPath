@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PathAPI.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PathAPI.Controllers
 {
@@ -39,37 +36,13 @@ namespace PathAPI.Controllers
             return location;
         }
 
-        // POST: api/Locations
-        [HttpPost]
-        public async Task<ActionResult<Location>> PostLocation(Location location)
-        {
-            _context.Locations.Add(location);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (LocationExists(location.LocationId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetLocation", new { id = location.LocationId }, location);
-        }
-
         // PUT: api/Locations/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutLocation(string id, Location location)
         {
-            if (id != location.LocationId)
+            if (id != location.Id)
             {
-                return BadRequest();
+                return BadRequest("ID in URL and request body must match.");
             }
 
             _context.Entry(location).State = EntityState.Modified;
@@ -93,6 +66,19 @@ namespace PathAPI.Controllers
             return NoContent();
         }
 
+        // POST: api/Locations
+        [HttpPost]
+        public async Task<ActionResult<Location>> PostLocation(Location location)
+        {
+            // Generate a unique ID if not provided
+            location.Id ??= Guid.NewGuid().ToString();
+
+            _context.Locations.Add(location);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetLocation), new { id = location.Id }, location);
+        }
+
         // DELETE: api/Locations/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLocation(string id)
@@ -111,7 +97,7 @@ namespace PathAPI.Controllers
 
         private bool LocationExists(string id)
         {
-            return _context.Locations.Any(e => e.LocationId == id);
+            return _context.Locations.Any(e => e.Id == id);
         }
     }
 }
