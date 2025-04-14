@@ -50,7 +50,7 @@ namespace PathAPI.Controllers
             }
             catch (DbUpdateException)
             {
-                if (LocationExists(location.LocationId))
+                if (LocationExists(location.Id))
                 {
                     return Conflict();
                 }
@@ -60,14 +60,14 @@ namespace PathAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetLocation", new { id = location.LocationId }, location);
+            return CreatedAtAction("GetLocation", new { id = location.Id }, location);
         }
 
         // PUT: api/Locations/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutLocation(string id, Location location)
         {
-            if (id != location.LocationId)
+            if (id != location.Id)
             {
                 return BadRequest();
             }
@@ -111,7 +111,7 @@ namespace PathAPI.Controllers
 
         private bool LocationExists(string id)
         {
-            return _context.Locations.Any(e => e.LocationId == id);
+            return _context.Locations.Any(e => e.Id == id);
         }
     }
 }

@@ -24,9 +24,9 @@ public partial class TrackMyPathContext : DbContext
     {
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.HasKey(e => e.LocationId).HasName("PK_Location");
+            entity.HasKey(e => e.Id).HasName("PK_Location");
 
-            entity.Property(e => e.LocationId)
+            entity.Property(e => e.Id)
                 .HasMaxLength(50)
                 .IsUnicode(false);
         });

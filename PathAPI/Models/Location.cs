@@ -5,7 +5,7 @@ namespace PathAPI.Models;
 
 public partial class Location
 {
-    public string LocationId { get; set; } = null!;
+    public string Id { get; set; } = null!;
 
     public double Latitude { get; set; }
 
