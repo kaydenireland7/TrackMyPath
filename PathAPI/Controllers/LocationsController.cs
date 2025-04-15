@@ -36,6 +36,9 @@ namespace PathAPI.Controllers
             return location;
         }
 
+            return CreatedAtAction("GetLocation", new { id = location.LocationId }, location);
+        }
+
         // PUT: api/Locations/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutLocation(string id, Location location)

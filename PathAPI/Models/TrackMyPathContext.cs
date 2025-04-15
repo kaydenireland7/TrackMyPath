@@ -30,7 +30,9 @@ public partial class TrackMyPathContext : DbContext
     {
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.Property(e => e.Id)
+            entity.HasKey(e => e.LocationId).HasName("PK_Location");
+
+            entity.Property(e => e.LocationId)
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
