@@ -24,7 +24,6 @@ public class TripsController : ControllerBase
     {
         var trip = await _context.Trips.Include(t => t.User)
                                        
-                                       .Include(t => t.Photos)
                                        .FirstOrDefaultAsync(t => t.Id == id);
         return trip == null ? NotFound() : trip;
     }

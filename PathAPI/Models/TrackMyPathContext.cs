@@ -37,8 +37,6 @@ public partial class TrackMyPathContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
-            entity.Property(e => e.Accuracy).HasColumnType("float");
-            entity.Property(e => e.Speed).HasColumnType("decimal(9, 3)");
         });
 
         modelBuilder.Entity<Photo>(entity =>
@@ -47,13 +45,11 @@ public partial class TrackMyPathContext : DbContext
 
             entity.Property(e => e.Caption).HasMaxLength(255);
             entity.Property(e => e.FileUrl).HasMaxLength(1000);
-            entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
-            entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
 
-            entity.HasOne(d => d.Trip).WithMany(p => p.Photos)
-                .HasForeignKey(d => d.TripId)
+            entity.HasOne(d => d.Location).WithOne(p => p.Photo)
+                .HasForeignKey<Photo>(d => d.LocationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Photos__TripId__787EE5A0");
+                .HasConstraintName("FK__Photos__Locations");
         });
 
         modelBuilder.Entity<Trip>(entity =>

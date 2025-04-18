@@ -17,4 +17,7 @@ public partial class Location
 
     public float? Accuracy { get; set; }
     public decimal? Speed { get; set; }
+
+    public virtual Photo Photo { get; set; } = null!;
+    // public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
 }
