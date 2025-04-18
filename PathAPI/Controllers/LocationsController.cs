@@ -24,7 +24,7 @@ namespace PathAPI.Controllers
 
         // GET: api/Locations/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Location>> GetLocation(string id)
+        public async Task<ActionResult<Location>> GetLocation(int id)
         {
             var location = await _context.Locations.FindAsync(id);
 
@@ -41,7 +41,7 @@ namespace PathAPI.Controllers
 
         // PUT: api/Locations/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLocation(string id, Location location)
+        public async Task<IActionResult> PutLocation(int id, Location location)
         {
             if (id != location.Id)
             {
@@ -74,8 +74,8 @@ namespace PathAPI.Controllers
         public async Task<ActionResult<Location>> PostLocation(Location location)
         {
             // Generate a unique ID if not provided
-            location.Id ??= Guid.NewGuid().ToString();
-
+            //location.Id ??= Guid.NewGuid().ToString();
+            location.Id = 0;
             _context.Locations.Add(location);
             await _context.SaveChangesAsync();
 
@@ -98,7 +98,7 @@ namespace PathAPI.Controllers
             return NoContent();
         }
 
-        private bool LocationExists(string id)
+        private bool LocationExists(int id)
         {
             return _context.Locations.Any(e => e.Id == id);
         }

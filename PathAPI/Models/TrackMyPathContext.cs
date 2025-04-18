@@ -37,6 +37,8 @@ public partial class TrackMyPathContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
+            entity.Property(e => e.Accuracy).HasColumnType("float");
+            entity.Property(e => e.Speed).HasColumnType("decimal(9, 3)");
         });
 
         modelBuilder.Entity<Photo>(entity =>
