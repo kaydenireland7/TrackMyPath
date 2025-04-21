@@ -14,8 +14,5 @@ public partial class Trip
     public DateTime? EndTime { get; set; }
 
     public string? TripName { get; set; }
-
-    public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
-
     public virtual User User { get; set; } = null!;
 }
