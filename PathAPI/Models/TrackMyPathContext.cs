@@ -46,10 +46,10 @@ public partial class TrackMyPathContext : DbContext
             entity.Property(e => e.Caption).HasMaxLength(255);
             entity.Property(e => e.FileUrl).HasMaxLength(1000);
 
-            entity.HasOne(d => d.Location).WithOne(p => p.Photo)
+            /*entity.HasOne(d => d.Location).WithOne(p => p.Photo)
                 .HasForeignKey<Photo>(d => d.LocationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Photos__Locations");
+                .HasConstraintName("FK__Photos__Locations");*/
         });
 
         modelBuilder.Entity<Trip>(entity =>
@@ -58,10 +58,10 @@ public partial class TrackMyPathContext : DbContext
 
             entity.Property(e => e.TripName).HasMaxLength(255);
 
-            entity.HasOne(d => d.User).WithMany(p => p.Trips)
+            /*entity.HasOne(d => d.User).WithMany(p => p.Trips)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Trips__UserId__72C60C4A");
+                .HasConstraintName("FK__Trips__UserId__72C60C4A");*/
         });
 
         modelBuilder.Entity<User>(entity =>
