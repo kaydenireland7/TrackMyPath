@@ -31,6 +31,7 @@ public class TripsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Trip>> CreateTrip(Trip trip)
     {
+        trip.Id = 0;
         _context.Trips.Add(trip);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetTrip), new { id = trip.Id }, trip);

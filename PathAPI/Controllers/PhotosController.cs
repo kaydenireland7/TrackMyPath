@@ -29,6 +29,7 @@ public class PhotosController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Photo>> CreatePhoto(Photo photo)
     {
+        photo.Id = 0;
         _context.Photos.Add(photo);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetPhoto), new { id = photo.Id }, photo);
