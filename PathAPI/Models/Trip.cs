@@ -14,5 +14,5 @@ public partial class Trip
     public DateTime? EndTime { get; set; }
 
     public string? TripName { get; set; }
-    public virtual User User { get; set; } = null!;
+    // public virtual User User { get; set; } = null!;
 }

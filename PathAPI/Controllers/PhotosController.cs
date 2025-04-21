@@ -17,7 +17,7 @@ public class PhotosController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Photo>>> GetPhotos()
-        => await _context.Photos.Include(p => p.Location).ToListAsync();
+        => await _context.Photos/*.Include(p => p.Location)*/.ToListAsync();
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Photo>> GetPhoto(int id)

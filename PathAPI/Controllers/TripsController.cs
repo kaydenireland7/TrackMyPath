@@ -17,12 +17,12 @@ public class TripsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Trip>>> GetTrips()
-        => await _context.Trips.Include(t => t.User).ToListAsync();
+        => await _context.Trips/*.Include(t => t.User)*/.ToListAsync();
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Trip>> GetTrip(int id)
     {
-        var trip = await _context.Trips.Include(t => t.User)
+        var trip = await _context.Trips/*.Include(t => t.User)*/
                                        
                                        .FirstOrDefaultAsync(t => t.Id == id);
         return trip == null ? NotFound() : trip;

@@ -13,5 +13,5 @@ public partial class Photo
 
     public string? Caption { get; set; }
 
-    public virtual Location Location { get; set; } = null!;
+    //public virtual Location Location { get; set; } = null!;
 }
