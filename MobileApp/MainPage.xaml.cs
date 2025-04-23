@@ -1,12 +1,16 @@
+
 ﻿using Microsoft.Maui.Controls.Maps;
+
 using Microsoft.Maui.Maps;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Devices.Sensors;
 using System.Collections.Generic;
 using System.Linq;
+
 using System.Threading.Tasks;
 using System;
 using System.Net.Http.Json;
+
 
 namespace MobileApp
 {
@@ -34,6 +38,7 @@ namespace MobileApp
         private async Task InitializeMapAsync()
         {
             // Get location
+
             Location? userLocation = null;
             try
             {
@@ -45,12 +50,17 @@ namespace MobileApp
                 await DisplayAlert("Error", "Unable to get location. Please enable tracking", "OK");
             }
 
-            userLocation ??= new Location(40.7128, -74.0060);
 
-            var location1 = new Location(37.7749, -122.4194);
-            var location2 = new Location(34.0522, -118.2437);
-            var location3 = new Location(36.1699, -115.1398);
-            var location4 = userLocation;
+            // Fallback to a default location at New York if user location comes back null
+            userLocation ??= new Location(40.7128, -74.0060); 
+
+            // Define some hard coded locations to start the path
+            var location1 = new Location(37.7749, -122.4194); // San Francisco
+            var location2 = new Location(34.0522, -118.2437); // Los Angeles
+            var location3 = new Location(36.1699, -115.1398); // Las Vegas
+            var location4 = userLocation; // User's current location (emulator should default to around San Jose, real devices should track real location if permission granted)
+
+            // Calculate bounds to include all points
 
             var allLocations = new[] { location1, location2, location3, location4 };
             var minLat = allLocations.Min(loc => loc.Latitude);
@@ -60,19 +70,27 @@ namespace MobileApp
 
             var mapBounds = new MapSpan(
                 center: new Location((minLat + maxLat) / 2, (minLon + maxLon) / 2),
+
                 latitudeDegrees: maxLat - minLat + 1,
                 longitudeDegrees: maxLon - minLon + 1
             );
 
             map = new Microsoft.Maui.Controls.Maps.Map(mapBounds)
+
             {
                 IsShowingUser = true
             };
+
+
+            // Add pins
 
             map.Pins.Add(new Pin { Label = "San Francisco", Location = location1 });
             map.Pins.Add(new Pin { Label = "Los Angeles", Location = location2 });
             map.Pins.Add(new Pin { Label = "Las Vegas", Location = location3 });
             map.Pins.Add(new Pin { Label = "You Are Here", Location = location4 });
+
+
+            // Add polyline path ending at current location
 
             var polyline = new Polyline
             {
@@ -82,6 +100,7 @@ namespace MobileApp
             polyline.Geopath.Add(location1);
             polyline.Geopath.Add(location2);
             polyline.Geopath.Add(location3);
+
             polyline.Geopath.Add(location4);
             map.MapElements.Add(polyline);
 
@@ -140,6 +159,7 @@ namespace MobileApp
                 startEndTripButton.Text = "Start Trip";
                 await DisplayAlert("Trip Ended", "Trip tracking stopped.", "OK");
             }
+
         }
 
         private async void ConfirmTripButton_Clicked(object sender, EventArgs e)
