@@ -15,7 +15,7 @@ public partial class Location
 
     public decimal Longitude { get; set; }
 
-    public float? Accuracy { get; set; }
+    public decimal? Accuracy { get; set; }
     public decimal? Speed { get; set; }
 
     //public virtual Photo Photo { get; set; } = null!;
