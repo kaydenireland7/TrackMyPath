@@ -23,29 +23,30 @@ namespace MobileApp
 
         }
 
+
         public void setLocalFilePath(string lfp)
         {
             localFilePath = lfp;
         }
 
 
-        public static async Task ListBlobsInContainerAsync(BlobContainerClient containerClient)
+        public async Task ListBlobsInContainerAsync()
         {
-            await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+            await foreach (BlobItem blobItem in this.containerClient.GetBlobsAsync())
             {
                 Console.WriteLine($"- {blobItem.Name}");
             }
         }
 
-        public static async Task UploadBlobAsync(BlobContainerClient containerClient, string blobName, string localFilePath)
+        public async Task UploadBlobAsync(string blobName, string localFilePath)
         {
-            BlobClient blobClient = containerClient.GetBlobClient(blobName);
+            BlobClient blobClient = this.containerClient.GetBlobClient(blobName);
             Console.WriteLine($"Uploading to Blob storage: {blobClient.Uri}");
 
             await blobClient.UploadAsync(localFilePath, true);
         }
 
-        public static async Task DownloadBlobAsync(BlobContainerClient containerClient, string blobName, string downloadFilePath)
+        public async Task DownloadBlobAsync(string blobName, string downloadFilePath)
         {
             BlobClient blobClient = containerClient.GetBlobClient(blobName);
             Console.WriteLine($"Downloading blob to {downloadFilePath}");
@@ -53,7 +54,7 @@ namespace MobileApp
             await blobClient.DownloadToAsync(downloadFilePath);
         }
 
-        public static async Task DeleteBlobAsync(BlobContainerClient containerClient, string blobName)
+        public async Task DeleteBlobAsync(string blobName)
         {
             BlobClient blobClient = containerClient.GetBlobClient(blobName);
             Console.WriteLine($"Deleting blob: {blobClient.Uri}");
