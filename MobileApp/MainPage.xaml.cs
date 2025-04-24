@@ -29,7 +29,6 @@ namespace MobileApp
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
 
-        private BlobService blobService = new BlobService();
         public MainPage()
         {
             InitializeComponent();
@@ -246,9 +245,9 @@ namespace MobileApp
             }
         }
 
-        private async void TakePhotoButton_Clicked(object sender, EventArgs e)
+        private void TakePhotoButton_Clicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Photo", "Take Photo button clicked.", "OK");
+            DisplayAlert("Photo", "Take Photo button clicked.", "OK");
         }
     }
 
