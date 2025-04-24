@@ -283,7 +283,7 @@ namespace MobileApp
             }
         }
 
-        private async void TakePhotoButton_Clicked(object sender, EventArgs e)
+        private void TakePhotoButton_Clicked(object sender, EventArgs e)
         {
             try
             {
@@ -337,6 +337,7 @@ namespace MobileApp
 
 
 
+            DisplayAlert("Photo", "Take Photo button clicked.", "OK");
         }
 
         public class Trip
