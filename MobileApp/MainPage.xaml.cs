@@ -33,9 +33,9 @@ namespace MobileApp
         private const int locationIntervalMs = 10000; // every 10 seconds
 
         private static readonly HttpClient httpClient = new HttpClient
-{
-    BaseAddress = new Uri("https://trackmypathapimanagement.azure-api.net/")
-};
+        {
+            BaseAddress = new Uri("https://trackmypathapimanagement.azure-api.net/")
+        };
 
 
         public MainPage()
@@ -248,6 +248,11 @@ namespace MobileApp
                                 $"Failed to send location.\nStatus: {(int)response.StatusCode}\n{responseBody}", "OK")
                         );
                     }
+                    else
+                    {
+                        var createdLocation = await response.Content.ReadFromJsonAsync<Location2>();
+                        latestLocationId = createdLocation?.Id;
+                    }
                 }
             }
             catch (Exception ex)
@@ -301,56 +306,38 @@ namespace MobileApp
                 await DisplayAlert("Error", "No location found for the current trip.", "OK");
                 return;
             }
-            using var httpClient = new HttpClient();
+            else
+            {
+                Console.WriteLine($"Latest Location ID: {latestLocationId}");
+            }
+                using var httpClient = new HttpClient();
 
             var form = new MultipartFormDataContent();
 
 
-        private void TakePhotoButton_Clicked(object sender, EventArgs e)
-        {
-            DisplayAlert("Photo", "Take Photo button clicked.", "OK");
-            // Attach image file
-            var imageContent = new StreamContent(File.OpenRead(filePath));
-            imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
-            form.Add(imageContent, "file", Path.GetFileName(filePath));
 
-            // Attach other data (hardcode LocationId or use one from active trip logic)
-            var locationId = latestLocationId; // set this when you post the location in your trip logic, it's always null with the current setup
-            form.Add(new StringContent(locationId.ToString()), "LocationId");
-            form.Add(new StringContent("Optional caption here"), "Caption");
-
-            var response = await httpClient.PostAsync("https://yourapi.com/api/photos", form);
-
-            if (response.IsSuccessStatusCode)
-            {
-                await DisplayAlert("Success", "Photo uploaded!", "OK");
-            }
-            else
-            {
-                await DisplayAlert("Upload Failed", response.ReasonPhrase, "OK");
-            }
         }
-    }
 
-    public class Trip
-    {
-        public int Id { get; set; }
-        public int UserId { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime? EndTime { get; set; }
-        public string? TripName { get; set; }
-    }
+        public class Trip
+        {
+            public int Id { get; set; }
+            public int UserId { get; set; }
+            public DateTime StartTime { get; set; }
+            public DateTime? EndTime { get; set; }
+            public string? TripName { get; set; }
+        }
 
-    
 
-    public class Location2
-    {
-        public int Id { get; set; }
-        public int TripId { get; set; }
-        public DateTime Timestamp { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
-        public float? Accuracy { get; set; }
-        public decimal? Speed { get; set; }
+
+        public class Location2
+        {
+            public int Id { get; set; }
+            public int TripId { get; set; }
+            public DateTime Timestamp { get; set; }
+            public decimal Latitude { get; set; }
+            public decimal Longitude { get; set; }
+            public float? Accuracy { get; set; }
+            public decimal? Speed { get; set; }
+        }
     }
 }
