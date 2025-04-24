@@ -32,6 +32,12 @@ namespace MobileApp
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
 
+        private static readonly HttpClient httpClient = new HttpClient
+{
+    BaseAddress = new Uri("https://trackmypathapimanagement.azure-api.net/")
+};
+
+
         public MainPage()
         {
             InitializeComponent();
@@ -156,13 +162,18 @@ namespace MobileApp
 
             var trip = new
             {
-                UserId = userId,
-                StartTime = DateTime.UtcNow,
-                TripName = tripName
+                id = 0, // Set to 0 because the server will generate the actual ID
+                userId = userId,
+                startTime = DateTime.UtcNow.ToString("o"),
+                endTime = DateTime.UtcNow.ToString("o"), // You might later update this when ending the trip (could set to null in database)
+                tripName = tripName
             };
 
-            using var client = new HttpClient();
-            var response = await client.PostAsJsonAsync("https://your-api-url/api/Trips", trip);
+            var response = await httpClient.PostAsJsonAsync("api/Trips", trip);
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine($"Trip POST Status: {(int)response.StatusCode} ({response.StatusCode})");
+            Console.WriteLine($"Trip POST Body: {responseBody}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -181,9 +192,10 @@ namespace MobileApp
             }
             else
             {
-                await DisplayAlert("Error", "Failed to start trip.", "OK");
+                await DisplayAlert("Error", $"Failed to start trip.\nStatus: {(int)response.StatusCode}\n{responseBody}", "OK");
             }
         }
+
 
         private void StartLocationUpdates()
         {
@@ -214,30 +226,34 @@ namespace MobileApp
                 {
                     var locPayload = new
                     {
-                        TripId = currentTripId,
-                        Timestamp = DateTime.UtcNow,
-                        Latitude = (decimal)location.Latitude,
-                        Longitude = (decimal)location.Longitude,
-                        Accuracy = (float?)location.Accuracy,
-                        Speed = (decimal?)location.Speed
+                        id = 0, // New record
+                        tripId = currentTripId.Value,
+                        timestamp = DateTime.UtcNow.ToString("o"),
+                        latitude = (decimal)location.Latitude,
+                        longitude = (decimal)location.Longitude,
+                        accuracy = (float)(location.Accuracy ?? 0), // Default to 0 if null
+                        speed = (decimal)(location.Speed ?? 0)       // Default to 0 if null
                     };
 
-                    using var client = new HttpClient();
-                    var response = await client.PostAsJsonAsync("https://your-api-url/api/Locations", locPayload);
+                    var response = await httpClient.PostAsJsonAsync("api/Locations", locPayload);
+                    var responseBody = await response.Content.ReadAsStringAsync();
 
-                    // get newest location id and set latestLocationId to it
-                    if (response.IsSuccessStatusCode)
+                    Console.WriteLine($"Location POST Status: {(int)response.StatusCode} ({response.StatusCode})");
+                    Console.WriteLine($"Location POST Body: {responseBody}");
+
+                    if (!response.IsSuccessStatusCode)
                     {
-                        var json = await response.Content.ReadAsStringAsync();
-                        var createdLocation = JsonSerializer.Deserialize<Location2>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                        // Location2 is just a copy of our API's model class in here, I added the 2 to avoid conflicts with the real location class
-                        latestLocationId = createdLocation?.Id;
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                            Application.Current?.MainPage?.DisplayAlert("Location Error",
+                                $"Failed to send location.\nStatus: {(int)response.StatusCode}\n{responseBody}", "OK")
+                        );
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Handle permission or hardware failure, but keep timer running
+                Console.WriteLine($"Location error: {ex.Message}");
+                // Optional: Display error to user if needed
             }
         }
 
@@ -289,6 +305,10 @@ namespace MobileApp
 
             var form = new MultipartFormDataContent();
 
+
+        private void TakePhotoButton_Clicked(object sender, EventArgs e)
+        {
+            DisplayAlert("Photo", "Take Photo button clicked.", "OK");
             // Attach image file
             var imageContent = new StreamContent(File.OpenRead(filePath));
             imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
@@ -320,6 +340,8 @@ namespace MobileApp
         public DateTime? EndTime { get; set; }
         public string? TripName { get; set; }
     }
+
+    
 
     public class Location2
     {
