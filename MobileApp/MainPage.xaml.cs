@@ -7,6 +7,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using System.Net.Http.Json;
+using Microsoft.Maui.Media;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+// using Android.Gms.Common.Apis;   this popped up automatically and causes an error, idk why
+using System.Text.Json;
 
 namespace MobileApp
 {
@@ -21,6 +26,8 @@ namespace MobileApp
 
         private bool tripActive = false;
         private int? currentTripId = null;
+        // latestLocationId is a new variable
+        private int? latestLocationId = null;
         private System.Timers.Timer locationTimer;
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
@@ -216,7 +223,16 @@ namespace MobileApp
                     };
 
                     using var client = new HttpClient();
-                    await client.PostAsJsonAsync("https://your-api-url/api/Locations", locPayload);
+                    var response = await client.PostAsJsonAsync("https://your-api-url/api/Locations", locPayload);
+
+                    // get newest location id and set latestLocationId to it
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var createdLocation = JsonSerializer.Deserialize<Location2>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        // Location2 is just a copy of our API's model class in here, I added the 2 to avoid conflicts with the real location class
+                        latestLocationId = createdLocation?.Id;
+                    }
                 }
             }
             catch
@@ -225,9 +241,74 @@ namespace MobileApp
             }
         }
 
-        private void TakePhotoButton_Clicked(object sender, EventArgs e)
+        private async void TakePhotoButton_Clicked(object sender, EventArgs e)
         {
-            DisplayAlert("Photo", "Take Photo button clicked.", "OK");
+            try
+            {
+                FileResult photo = await MediaPicker.CapturePhotoAsync();
+
+                if (photo != null)
+                {
+                    // Save locally (optional but useful for manipulation or displaying)
+                    var stream = await photo.OpenReadAsync();
+                    var fileName = $"{Guid.NewGuid()}.jpg";
+                    var localPath = Path.Combine(FileSystem.CacheDirectory, fileName);
+
+                    using (var fileStream = File.OpenWrite(localPath))
+                    {
+                        await stream.CopyToAsync(fileStream);
+                    }
+
+                    // Upload to API
+                    await UploadPhotoToApi(localPath);
+                }
+            }
+            catch (FeatureNotSupportedException)
+            {
+                await DisplayAlert("Error", "Camera not supported on this device.", "OK");
+            }
+            catch (PermissionException)
+            {
+                await DisplayAlert("Error", "Camera permissions not granted.", "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Unexpected error: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task UploadPhotoToApi(string filePath)
+        {
+            // THIS IS SAMPLE CODE AND DOESN'T ACTUALLY FUNCTION
+            if (latestLocationId == null)
+            {
+                await DisplayAlert("Error", "No location found for the current trip.", "OK");
+                return;
+            }
+            using var httpClient = new HttpClient();
+
+            var form = new MultipartFormDataContent();
+
+            // Attach image file
+            var imageContent = new StreamContent(File.OpenRead(filePath));
+            imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
+            form.Add(imageContent, "file", Path.GetFileName(filePath));
+
+            // Attach other data (hardcode LocationId or use one from active trip logic)
+            var locationId = latestLocationId; // set this when you post the location in your trip logic, it's always null with the current setup
+            form.Add(new StringContent(locationId.ToString()), "LocationId");
+            form.Add(new StringContent("Optional caption here"), "Caption");
+
+            var response = await httpClient.PostAsync("https://yourapi.com/api/photos", form);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await DisplayAlert("Success", "Photo uploaded!", "OK");
+            }
+            else
+            {
+                await DisplayAlert("Upload Failed", response.ReasonPhrase, "OK");
+            }
         }
     }
 
@@ -238,5 +319,16 @@ namespace MobileApp
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public string? TripName { get; set; }
+    }
+
+    public class Location2
+    {
+        public int Id { get; set; }
+        public int TripId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public decimal Latitude { get; set; }
+        public decimal Longitude { get; set; }
+        public float? Accuracy { get; set; }
+        public decimal? Speed { get; set; }
     }
 }
