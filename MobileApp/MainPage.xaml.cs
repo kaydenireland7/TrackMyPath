@@ -29,12 +29,11 @@ namespace MobileApp
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
 
-        private BlobService blobService = new BlobService("");
+        private BlobService blobService = new BlobService();
         public MainPage()
         {
             InitializeComponent();
             _ = InitializeMapAsync();
-            blobService.SetLocalFilePath("C:\\Users\\kayde\\Downloads\\aurora.png");
         }
 
         private async Task InitializeMapAsync()
@@ -250,8 +249,6 @@ namespace MobileApp
         private async void TakePhotoButton_Clicked(object sender, EventArgs e)
         {
             await DisplayAlert("Photo", "Take Photo button clicked.", "OK");
-            //int blobcount = await blobService.FindNumberOfBlobs();
-            //_ = DisplayAlert("Photo", blobcount + " blobs in container." , "OK");
         }
     }
 

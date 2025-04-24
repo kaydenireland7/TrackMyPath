@@ -13,13 +13,11 @@ namespace MobileApp
         private BlobContainerClient containerClient;
         private string localFilePath;
 
-        public BlobService(string lfp)
+        public BlobService()
         {
 
             blobServiceClient = new BlobServiceClient("");
             containerClient = blobServiceClient.GetBlobContainerClient("images");
-
-            localFilePath = lfp;
 
         }
 
