@@ -24,9 +24,20 @@ namespace MobileApp
         }
 
 
-        public void setLocalFilePath(string lfp)
+        public void SetLocalFilePath(string lfp)
         {
             localFilePath = lfp;
+        }
+
+
+        public async Task<int> FindNumberOfBlobs()
+        {
+            int count = 0;
+            await foreach (BlobItem blobItem in this.containerClient.GetBlobsAsync())
+            {
+                count++;
+            }
+            return count;
         }
 
 
@@ -35,10 +46,24 @@ namespace MobileApp
             await foreach (BlobItem blobItem in this.containerClient.GetBlobsAsync())
             {
                 Console.WriteLine($"- {blobItem.Name}");
+               
             }
         }
 
-        public async Task UploadBlobAsync(string blobName, string localFilePath)
+        public async Task<string[]> FindArrayOfBlobs()
+        {
+            int count = await FindNumberOfBlobs();
+            string[] blobs = new string[count];
+            int i = 0;
+            await foreach (BlobItem blobItem in this.containerClient.GetBlobsAsync())
+            {
+                blobs[i] = blobItem.Name;
+                i++;
+            }
+            return blobs;
+        }
+
+        public async Task UploadBlobAsync(string blobName)
         {
             BlobClient blobClient = this.containerClient.GetBlobClient(blobName);
             Console.WriteLine($"Uploading to Blob storage: {blobClient.Uri}");
