@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\PathAPI",
+    "\\PathAPI\\Controllers",
+    "\\PathAPI\\Models",
+    "\\trackmypath-frontend",
+    "\\trackmypath-frontend\\src",
+    "\\trackmypath-frontend\\src\\Components",
+    "\\trackmypath-frontend\\src\\services"
+  ],
+  "SelectedNode": "\\PathAPI\\Models\\Location.cs",
+  "PreviewInSolutionExplorer": false
+}
