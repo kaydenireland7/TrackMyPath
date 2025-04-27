@@ -26,11 +26,19 @@ namespace MobileApp
 
         private bool tripActive = false;
         private int? currentTripId = null;
-        // latestLocationId is a new variable
+        
         private int? latestLocationId = null;
         private System.Timers.Timer locationTimer;
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
+
+        // new variables
+        private List<Location> tripLocations = new();
+        private Polyline tripPolyline = new Polyline
+        {
+            StrokeColor = Colors.Blue,
+            StrokeWidth = 5
+        };
 
         private static readonly HttpClient httpClient = new HttpClient
         {
@@ -46,65 +54,37 @@ namespace MobileApp
 
         private async Task InitializeMapAsync()
         {
-            // Get location
+            // Get user location
             Location? userLocation = null;
             try
             {
-                userLocation = await Geolocation.Default.GetLocationAsync(
-                    new GeolocationRequest(GeolocationAccuracy.Medium));
+                userLocation = await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium));
             }
-            catch (Exception ex)
+            catch
             {
-                await DisplayAlert("Error", "Unable to get location. Please enable tracking", "OK");
+                await DisplayAlert("Error", "Unable to get location. Please enable tracking.", "OK");
             }
 
             userLocation ??= new Location(40.7128, -74.0060);
 
-            var location1 = new Location(37.7749, -122.4194);
-            var location2 = new Location(34.0522, -118.2437);
-            var location3 = new Location(36.1699, -115.1398);
-            var location4 = userLocation;
-
-            var allLocations = new[] { location1, location2, location3, location4 };
-            var minLat = allLocations.Min(loc => loc.Latitude);
-            var maxLat = allLocations.Max(loc => loc.Latitude);
-            var minLon = allLocations.Min(loc => loc.Longitude);
-            var maxLon = allLocations.Max(loc => loc.Longitude);
-
             var mapBounds = new MapSpan(
-                center: new Location((minLat + maxLat) / 2, (minLon + maxLon) / 2),
-                latitudeDegrees: maxLat - minLat + 1,
-                longitudeDegrees: maxLon - minLon + 1
+                center: userLocation,
+                latitudeDegrees: 0.1,
+                longitudeDegrees: 0.1
             );
 
+            // --- Create the map first ---
             map = new Microsoft.Maui.Controls.Maps.Map(mapBounds)
             {
                 IsShowingUser = true
             };
 
-            map.Pins.Add(new Pin { Label = "San Francisco", Location = location1 });
-            map.Pins.Add(new Pin { Label = "Los Angeles", Location = location2 });
-            map.Pins.Add(new Pin { Label = "Las Vegas", Location = location3 });
-            map.Pins.Add(new Pin { Label = "You Are Here", Location = location4 });
-
-            var polyline = new Polyline
-            {
-                StrokeColor = Colors.Blue,
-                StrokeWidth = 5
-            };
-            polyline.Geopath.Add(location1);
-            polyline.Geopath.Add(location2);
-            polyline.Geopath.Add(location3);
-            polyline.Geopath.Add(location4);
-            map.MapElements.Add(polyline);
-
-            // Create buttons
+            // --- Create the buttons ---
             startEndTripButton = new Button { Text = "Start/End Trip" };
             takePhotoButton = new Button { Text = "Take Photo" };
             startEndTripButton.Clicked += StartEndTripButton_Clicked;
             takePhotoButton.Clicked += TakePhotoButton_Clicked;
 
-            // Create input section (hidden by default)
             tripNameEntry = new Entry { Placeholder = "Enter Trip Name", IsVisible = false };
             confirmTripButton = new Button { Text = "Confirm", IsVisible = false };
             confirmTripButton.Clicked += ConfirmTripButton_Clicked;
@@ -115,23 +95,35 @@ namespace MobileApp
                 Spacing = 5
             };
 
-            // Create the full page layout
-            Content = new StackLayout
+            // --- Now build the Grid ---
+            var grid = new Grid
             {
-                Spacing = 10,
-                Children =
-                {
-                    map,
-                    new StackLayout
-                    {
-                        Orientation = StackOrientation.Horizontal,
-                        Spacing = 10,
-                        HorizontalOptions = LayoutOptions.Center,
-                        Children = { startEndTripButton, takePhotoButton }
-                    },
-                    tripInputLayout
-                }
+                RowDefinitions =
+        {
+            new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }, // Map fills available space
+            new RowDefinition { Height = GridLength.Auto }, // Buttons
+            new RowDefinition { Height = GridLength.Auto }  // Trip input
+        }
             };
+
+            grid.Children.Add(map);
+            Grid.SetRow(map, 0);
+
+            var buttonsLayout = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                Spacing = 10,
+                HorizontalOptions = LayoutOptions.Center,
+                Children = { startEndTripButton, takePhotoButton }
+            };
+            grid.Children.Add(buttonsLayout);
+            Grid.SetRow(buttonsLayout, 1);
+
+            grid.Children.Add(tripInputLayout);
+            Grid.SetRow(tripInputLayout, 2);
+
+            // --- Set the page content last ---
+            Content = grid;
         }
 
         private async void StartEndTripButton_Clicked(object sender, EventArgs e)
@@ -147,11 +139,35 @@ namespace MobileApp
                 // End trip
                 StopLocationUpdates();
 
+                // New stuff to reset map after ending trip
+                tripLocations.Clear();
+                map.Pins.Clear();
+                map.MapElements.Clear();
+                tripPolyline = new Polyline
+                {
+                    StrokeColor = Colors.Blue,
+                    StrokeWidth = 5
+                };
+
+                // Recenter map on user
+                _ = ResetMapToUserLocation();
+
                 tripActive = false;
                 currentTripId = null;
 
                 startEndTripButton.Text = "Start Trip";
                 await DisplayAlert("Trip Ended", "Trip tracking stopped.", "OK");
+            }
+        }
+
+        // New helper method to reset the map to only show user location when trip ends
+        private async Task ResetMapToUserLocation()
+        {
+            var location = await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium));
+            if (location != null)
+            {
+                var mapSpan = new MapSpan(location, 0.05, 0.05);
+                map.MoveToRegion(mapSpan);
             }
         }
 
@@ -215,6 +231,7 @@ namespace MobileApp
             }
         }
 
+        // Updated method to call AddLocationToTrip
         private async Task PostCurrentLocation()
         {
             if (currentTripId == null) return;
@@ -226,13 +243,13 @@ namespace MobileApp
                 {
                     var locPayload = new
                     {
-                        id = 0, // New record
+                        id = 0,
                         tripId = currentTripId.Value,
                         timestamp = DateTime.UtcNow.ToString("o"),
                         latitude = (decimal)location.Latitude,
                         longitude = (decimal)location.Longitude,
-                        accuracy = (float)(location.Accuracy ?? 0), // Default to 0 if null
-                        speed = (decimal)(location.Speed ?? 0)       // Default to 0 if null
+                        accuracy = (float)(location.Accuracy ?? 0),
+                        speed = (decimal)(location.Speed ?? 0)
                     };
 
                     var response = await httpClient.PostAsJsonAsync("api/Locations", locPayload);
@@ -241,25 +258,80 @@ namespace MobileApp
                     Console.WriteLine($"Location POST Status: {(int)response.StatusCode} ({response.StatusCode})");
                     Console.WriteLine($"Location POST Body: {responseBody}");
 
-                    if (!response.IsSuccessStatusCode)
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var createdLocation = await response.Content.ReadFromJsonAsync<Location2>();
+                        latestLocationId = createdLocation?.Id;
+
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                        {
+                            AddLocationToTrip(location);
+                        });
+                    }
+                    else
                     {
                         await MainThread.InvokeOnMainThreadAsync(() =>
                             Application.Current?.MainPage?.DisplayAlert("Location Error",
                                 $"Failed to send location.\nStatus: {(int)response.StatusCode}\n{responseBody}", "OK")
                         );
                     }
-                    else
-                    {
-                        var createdLocation = await response.Content.ReadFromJsonAsync<Location2>();
-                        latestLocationId = createdLocation?.Id;
-                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Location error: {ex.Message}");
-                // Optional: Display error to user if needed
             }
+        }
+
+        // New method that adds the posted location to the app's map as well
+        private void AddLocationToTrip(Location location)
+        {
+            tripLocations.Add(location);
+
+            // Add a Pin
+            var pin = new Pin
+            {
+                Label = $"Point {tripLocations.Count}",
+                Location = location
+            };
+            map.Pins.Add(pin);
+
+            // Update Polyline
+            tripPolyline.Geopath.Clear();
+            foreach (var loc in tripLocations)
+            {
+                tripPolyline.Geopath.Add(loc);
+            }
+
+            if (!map.MapElements.Contains(tripPolyline))
+            {
+                map.MapElements.Add(tripPolyline);
+            }
+
+            // Adjust Map View
+            UpdateMapBounds();
+        }
+
+        // New helper method that updates the boundaries of the map to neatly fit the entire trip
+        private void UpdateMapBounds()
+        {
+            if (tripLocations.Count == 0) return;
+
+            var minLat = tripLocations.Min(loc => loc.Latitude);
+            var maxLat = tripLocations.Max(loc => loc.Latitude);
+            var minLon = tripLocations.Min(loc => loc.Longitude);
+            var maxLon = tripLocations.Max(loc => loc.Longitude);
+
+            var centerLat = (minLat + maxLat) / 2;
+            var centerLon = (minLon + maxLon) / 2;
+
+            var mapSpan = new MapSpan(
+                new Location(centerLat, centerLon),
+                (maxLat - minLat) * 1.5, // Expand view a little
+                (maxLon - minLon) * 1.5
+            );
+
+            map.MoveToRegion(mapSpan);
         }
 
         private async void TakePhotoButton_Clicked(object sender, EventArgs e)
@@ -300,7 +372,6 @@ namespace MobileApp
 
         private async Task UploadPhotoToApi(string filePath)
         {
-            // THIS IS SAMPLE CODE AND DOESN'T ACTUALLY FUNCTION
             if (latestLocationId == null)
             {
                 await DisplayAlert("Error", "No location found for the current trip.", "OK");
