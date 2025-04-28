@@ -1,13 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\PathAPI",
-    "\\PathAPI\\Controllers",
-    "\\PathAPI\\Models",
     "\\trackmypath-frontend",
+    "\\trackmypath-frontend\\public",
     "\\trackmypath-frontend\\src",
-    "\\trackmypath-frontend\\src\\Components",
-    "\\trackmypath-frontend\\src\\services"
+    "\\trackmypath-frontend\\src\\Components"
   ],
+  "SelectedNode": "\\PathAPI.sln",
   "PreviewInSolutionExplorer": false
 }

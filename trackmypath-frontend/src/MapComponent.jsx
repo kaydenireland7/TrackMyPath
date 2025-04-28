@@ -1,46 +1,97 @@
-// src/MapComponent.jsx
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, Polyline } from '@react-google-maps/api';
 
 const containerStyle = {
-  width: '100%',
-  height: '400px'
+    width: '100%',
+    height: '400px',
 };
 
-const center = {
-  lat: -3.745,
-  lng: -38.523
-};
+const MapComponent = ({ trip }) => {
+    const [center, setCenter] = useState({ lat: 0, lng: 0 });
+    const [path, setPath] = useState([]);
+    const [mapLoaded, setMapLoaded] = useState(false);
 
-const MapComponent = () => {
-  const [position, setPosition] = useState(center);
+    useEffect(() => {
+        // Reset the path every time the trip changes
+        if (trip && trip.locations && trip.locations.length > 0) {
+            const tripPath = trip.locations.map((loc) => ({
+                lat: parseFloat(loc.latitude),
+                lng: parseFloat(loc.longitude),
+            }));
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setPosition({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
-      }, () => {
-        console.error('Error getting location');
-      });
-    }
-  }, []);
+            // Clear the previous path before updating
+            setPath(tripPath);
+            setCenter(tripPath[0]);
+        } else {
+            // If no locations, clear the path
+            setPath([]);
+            setCenter({ lat: 0, lng: 0 });
+        }
+    }, [trip]); // This effect depends on the trip prop
 
-  return (
-    <LoadScript
-      googleMapsApiKey="AIzaSyBoGIKoRKdaOyfJ-zcfFyxVOGFCpXH1mjY"
-    >
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={position}
-        zoom={10}
-      >
-        <Marker position={position} />
-      </GoogleMap>
-    </LoadScript>
-  );
+    const createCircleIcon = (color) => {
+        if (!window.google) return null;
+        return {
+            path: window.google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: color,
+            fillOpacity: 1,
+            strokeWeight: 1,
+        };
+    };
+
+    return (
+        <LoadScript googleMapsApiKey="AIzaSyBoGIKoRKdaOyfJ-zcfFyxVOGFCpXH1mjY">
+            <GoogleMap
+                mapContainerStyle={containerStyle}
+                center={center}
+                zoom={12}
+                onLoad={() => setMapLoaded(true)}
+                key={trip ? trip.id : "no-trip"}  // This forces the component to re-render on trip change
+            >
+                {mapLoaded && path.length > 0 && (
+                    <Marker
+                        position={path[0]}
+                        label="Start"
+                        icon={createCircleIcon('green')}
+                    />
+                )}
+
+                {mapLoaded && path.length > 1 && (
+                    <Marker
+                        position={path[path.length - 1]}
+                        label="End"
+                        icon={createCircleIcon('red')}
+                    />
+                )}
+
+                {mapLoaded && path.length > 1 && (
+                    <Polyline
+                        path={path}
+                        options={{
+                            strokeColor: '#0000FF',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 4,
+                        }}
+                    />
+                )}
+            </GoogleMap>
+        </LoadScript>
+    );
 };
 
 export default MapComponent;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
