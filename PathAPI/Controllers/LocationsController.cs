@@ -84,7 +84,7 @@ namespace PathAPI.Controllers
 
         // DELETE: api/Locations/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLocation(string id)
+        public async Task<IActionResult> DeleteLocation(int id)
         {
             var location = await _context.Locations.FindAsync(id);
             if (location == null)
