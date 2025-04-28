@@ -3,16 +3,24 @@
   "WorkspaceRootPath": "C:\\TMP3\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{92B0F32F-4241-4B2F-BD69-2F010FE59E16}|PathAPI\\PathAPI.csproj|c:\\tmp3\\pathapi\\models\\location.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{92B0F32F-4241-4B2F-BD69-2F010FE59E16}|PathAPI\\PathAPI.csproj|solutionrelative:pathapi\\models\\location.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{92B0F32F-4241-4B2F-BD69-2F010FE59E16}|PathAPI\\PathAPI.csproj|c:\\tmp3\\pathapi\\controllers\\locationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{92B0F32F-4241-4B2F-BD69-2F010FE59E16}|PathAPI\\PathAPI.csproj|solutionrelative:pathapi\\controllers\\locationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\TMP3\\trackmypath-frontend\\src\\services\\LocationsService.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:trackmypath-frontend\\src\\services\\LocationsService.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{92B0F32F-4241-4B2F-BD69-2F010FE59E16}|PathAPI\\PathAPI.csproj|c:\\tmp3\\pathapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{92B0F32F-4241-4B2F-BD69-2F010FE59E16}|PathAPI\\PathAPI.csproj|solutionrelative:pathapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{92B0F32F-4241-4B2F-BD69-2F010FE59E16}|PathAPI\\PathAPI.csproj|c:\\tmp3\\pathapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{92B0F32F-4241-4B2F-BD69-2F010FE59E16}|PathAPI\\PathAPI.csproj|solutionrelative:pathapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\TMP3\\trackmypath-frontend\\src\\services\\LocationsService.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:trackmypath-frontend\\src\\services\\LocationsService.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,6 +35,32 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Location.cs",
+              "DocumentMoniker": "C:\\TMP3\\PathAPI\\Models\\Location.cs",
+              "RelativeDocumentMoniker": "PathAPI\\Models\\Location.cs",
+              "ToolTip": "C:\\TMP3\\PathAPI\\Models\\Location.cs",
+              "RelativeToolTip": "PathAPI\\Models\\Location.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-26T16:04:27.706Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "LocationsController.cs",
+              "DocumentMoniker": "C:\\TMP3\\PathAPI\\Controllers\\LocationsController.cs",
+              "RelativeDocumentMoniker": "PathAPI\\Controllers\\LocationsController.cs",
+              "ToolTip": "C:\\TMP3\\PathAPI\\Controllers\\LocationsController.cs",
+              "RelativeToolTip": "PathAPI\\Controllers\\LocationsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-26T16:04:22.033Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\TMP3\\PathAPI\\appsettings.json",
               "RelativeDocumentMoniker": "PathAPI\\appsettings.json",
@@ -39,7 +73,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\TMP3\\PathAPI\\Program.cs",
               "RelativeDocumentMoniker": "PathAPI\\Program.cs",
@@ -57,9 +91,10 @@
               "RelativeDocumentMoniker": "trackmypath-frontend\\src\\services\\LocationsService.js",
               "ToolTip": "C:\\TMP3\\trackmypath-frontend\\src\\services\\LocationsService.js",
               "RelativeToolTip": "trackmypath-frontend\\src\\services\\LocationsService.js",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-04-25T19:16:38.714Z"
+              "WhenOpened": "2025-04-25T19:16:38.714Z",
+              "EditorCaption": ""
             }
           ]
         }

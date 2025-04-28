@@ -3,7 +3,7 @@
 function LocationsList({ locations }) {
     return (
         <div>
-            <h2>Location Trail</h2>
+            <h2>Locations </h2>
             <ul>
                 {locations.map((loc) => (
                     <li key={loc.id}>
