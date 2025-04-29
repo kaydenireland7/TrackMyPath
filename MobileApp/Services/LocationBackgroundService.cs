@@ -18,9 +18,11 @@ namespace MobileApp.Services
         private readonly HttpClient httpClient;
         private readonly System.Timers.Timer timer;
         private readonly int locationIntervalMs = 10000; // 10 seconds
+        public int currentLocationID;
         private bool isRunning = false;
 
         public Action<Location>? OnLocationPosted;
+        public Action<Location, int>? OnLocationPostedWithId;
 
         public LocationBackgroundService(int tripId)
         {
@@ -53,6 +55,11 @@ namespace MobileApp.Services
             }
         }
 
+        public int getCurrentLocationID()
+        {
+            return currentLocationID;
+        }
+
         private async Task FetchAndPostLocation()
         {
             try
@@ -77,12 +84,17 @@ namespace MobileApp.Services
 
                     if (response.IsSuccessStatusCode)
                     {
+                        var createdLocation = await response.Content.ReadFromJsonAsync<Location2>();
+                        currentLocationID = createdLocation.Id;
+                        Console.WriteLine(response.Content.ReadAsStringAsync().Result.ToString());
                         // Notify UI
                         if (OnLocationPosted != null)
                         {
                             await MainThread.InvokeOnMainThreadAsync(() =>
                             {
                                 OnLocationPosted(location);
+                                OnLocationPostedWithId?.Invoke(location, createdLocation.Id);
+
                             });
                         }
                     }
@@ -92,6 +104,18 @@ namespace MobileApp.Services
             {
                 Console.WriteLine($"Background location error: {ex.Message}");
             }
+        
+        }
+        public class Location2
+        {
+            public int Id { get; set; }
+            public int TripId { get; set; }
+            public DateTime Timestamp { get; set; }
+            public decimal Latitude { get; set; }
+            public decimal Longitude { get; set; }
+            public float? Accuracy { get; set; }
+            public decimal? Speed { get; set; }
         }
     }
+
 }

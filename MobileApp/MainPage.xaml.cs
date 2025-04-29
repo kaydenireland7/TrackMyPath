@@ -44,7 +44,7 @@ namespace MobileApp
             StrokeWidth = 5
         };
 
-        private static readonly HttpClient httpClient = new HttpClient
+        public static readonly HttpClient httpClient = new HttpClient
         {
             BaseAddress = new Uri("https://trackmypathapimanagement.azure-api.net/")
         };
@@ -239,9 +239,14 @@ namespace MobileApp
                 {
                     AddLocationToTrip(loc);
                 };
+                locationService.OnLocationPostedWithId = (Location loc, int locationId) =>
+                {
+                    latestLocationId = locationId;
+                };
                 locationService.Start();
 
                 await DisplayAlert("Trip Started", $"Trip ID: {currentTripId}", "OK");
+                latestLocationId = locationService.getCurrentLocationID(); // Reset latest location ID
             }
             else
             {
@@ -426,11 +431,44 @@ namespace MobileApp
             else
             {
                 Console.WriteLine($"Latest Location ID: {latestLocationId}");
+                var Photo = new
+                {
+                    id = 0, // Let the server assign the ID
+                    locationId = latestLocationId,
+                    fileUrl = filePath,
+                    caption = ""
+                };
+
+                try
+                {
+                    var response = await httpClient.PostAsJsonAsync("api/Photos", Photo);
+                    var responseBody = await response.Content.ReadAsStringAsync();
+
+                    Console.WriteLine($"Photo POST Status: {(int)response.StatusCode} ({response.StatusCode})");
+                    Console.WriteLine($"Photo POST Body: {responseBody}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                            Application.Current?.MainPage?.DisplayAlert("Photo Uploaded", "Photo data sent successfully.", "OK")
+                        );
+                    }
+                    else
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                            Application.Current?.MainPage?.DisplayAlert("Upload Failed", $"Status: {(int)response.StatusCode}\n{responseBody}", "OK")
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Photo upload error: {ex.Message}");
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                        Application.Current?.MainPage?.DisplayAlert("Error", $"Exception: {ex.Message}", "OK")
+                    );
+                }
             }
-                using var httpClient = new HttpClient();
-
-            var form = new MultipartFormDataContent();
-
+                
 
 
         }
@@ -446,15 +484,15 @@ namespace MobileApp
 
 
 
-        public class Location2
+      
+
+        public class Photo 
         {
             public int Id { get; set; }
-            public int TripId { get; set; }
-            public DateTime Timestamp { get; set; }
-            public decimal Latitude { get; set; }
-            public decimal Longitude { get; set; }
-            public float? Accuracy { get; set; }
-            public decimal? Speed { get; set; }
+            public int LocationId { get; set; }
+            public string FileUrl { get; set; }
+            public string Caption { get; set; }
         }
+
     }
 }
