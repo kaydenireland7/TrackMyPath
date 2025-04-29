@@ -16,7 +16,7 @@ namespace MobileApp
         public BlobService()
         {
 
-            blobServiceClient = new BlobServiceClient("");
+            blobServiceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=trackmypath;AccountKey=6am3f9i8Ndk5PqGT+oT8o0G+LhBWUtHgNriKwWDag91iommyIzFzsyjV/Sekjas8weZCfhr3Ab4O+AStqrT1hQ==;EndpointSuffix=core.windows.net");
             containerClient = blobServiceClient.GetBlobContainerClient("images");
 
         }
