@@ -32,7 +32,7 @@ namespace MobileApp
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
         
-        private BlobService blobservice = new BlobService();
+        private BlobService blobservice;
 
         // new variables
         private List<Location> tripLocations = new();
@@ -52,6 +52,7 @@ namespace MobileApp
         {
             InitializeComponent();
             _ = InitializeMapAsync();
+            blobservice = new BlobService();
         }
 
         private async Task InitializeMapAsync()
