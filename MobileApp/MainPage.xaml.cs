@@ -27,8 +27,9 @@ namespace MobileApp
 
         private bool tripActive = false;
         private int? currentTripId = null;
-        
+   
         private int? latestLocationId = null;
+
         private System.Timers.Timer locationTimer;
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
@@ -78,6 +79,7 @@ namespace MobileApp
 
             // --- Create the map first ---
             map = new Microsoft.Maui.Controls.Maps.Map(mapBounds)
+
             {
                 IsShowingUser = true
             };
