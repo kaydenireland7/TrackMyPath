@@ -12,6 +12,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 // using Android.Gms.Common.Apis;   this popped up automatically and causes an error, idk why
 using System.Text.Json;
+using MobileApp.Services;
 
 namespace MobileApp
 {
@@ -26,8 +27,9 @@ namespace MobileApp
 
         private bool tripActive = false;
         private int? currentTripId = null;
-        
+   
         private int? latestLocationId = null;
+
         private System.Timers.Timer locationTimer;
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
@@ -35,6 +37,22 @@ namespace MobileApp
         private BlobService blobservice;
 
         // new variables
+        private List<Location> tripLocations = new();
+        private Polyline tripPolyline = new Polyline
+        {
+            StrokeColor = Colors.Blue,
+            StrokeWidth = 5
+        };
+
+        private static readonly HttpClient httpClient = new HttpClient
+        {
+            BaseAddress = new Uri("https://trackmypathapimanagement.azure-api.net/")
+        };
+
+
+        // NEW VARIABLE for background locations
+        private LocationBackgroundService locationService;
+
         private List<Location> tripLocations = new();
         private Polyline tripPolyline = new Polyline
         {
@@ -140,7 +158,26 @@ namespace MobileApp
             else
             {
                 // End trip
-                StopLocationUpdates();
+                // CHANGED TO STOP LOCATION SERVICE INSTEAD OF CALLING StopLocationUpdates
+                if (locationService != null)
+                {
+                    locationService?.Stop();
+                    locationService = null;
+                }
+
+
+                // New stuff to reset map after ending trip
+                tripLocations.Clear();
+                map.Pins.Clear();
+                map.MapElements.Clear();
+                tripPolyline = new Polyline
+                {
+                    StrokeColor = Colors.Blue,
+                    StrokeWidth = 5
+                };
+
+                // Recenter map on user
+                _ = ResetMapToUserLocation();
 
                 // New stuff to reset map after ending trip
                 tripLocations.Clear();
@@ -205,7 +242,13 @@ namespace MobileApp
                 tripNameEntry.IsVisible = false;
                 confirmTripButton.IsVisible = false;
 
-                StartLocationUpdates();
+                // CHANGED TO CALL LOCATION SERVICE INSTEAD OF START LOCATION UPDATES
+                locationService = new LocationBackgroundService(currentTripId.Value);
+                locationService.OnLocationPosted = (Location loc) =>
+                {
+                    AddLocationToTrip(loc);
+                };
+                locationService.Start();
 
                 await DisplayAlert("Trip Started", $"Trip ID: {currentTripId}", "OK");
             }
@@ -215,6 +258,8 @@ namespace MobileApp
             }
         }
 
+        /*
+        // NOW UNUSED, SEE LocationBackgroundService IN THE Services FOLDER FOR REPLACEMENT
 
         private void StartLocationUpdates()
         {
@@ -223,6 +268,8 @@ namespace MobileApp
             locationTimer.AutoReset = true;
             locationTimer.Start();
         }
+
+        // NOW UNUSED, THE LOCATION SERVICE IS ENDED INSTEAD
 
         private void StopLocationUpdates()
         {
@@ -233,8 +280,8 @@ namespace MobileApp
                 locationTimer = null;
             }
         }
+        // NOW UNUSED, SEE LocationBackgroundService IN THE Services FOLDER FOR REPLACEMENT
 
-        // Updated method to call AddLocationToTrip
         private async Task PostCurrentLocation()
         {
             if (currentTripId == null) return;
@@ -285,13 +332,15 @@ namespace MobileApp
                 Console.WriteLine($"Location error: {ex.Message}");
             }
         }
+        */
 
         // New method that adds the posted location to the app's map as well
         private void AddLocationToTrip(Location location)
         {
             tripLocations.Add(location);
 
-            // Add a Pin
+            // Add a Pin. COMMENT THIS OUT FOR OUR PRESENTATION
+
             var pin = new Pin
             {
                 Label = $"Point {tripLocations.Count}",
