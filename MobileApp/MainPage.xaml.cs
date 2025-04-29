@@ -53,18 +53,9 @@ namespace MobileApp
         // NEW VARIABLE for background locations
         private LocationBackgroundService locationService;
 
-        private List<Location> tripLocations = new();
-        private Polyline tripPolyline = new Polyline
-        {
-            StrokeColor = Colors.Blue,
-            StrokeWidth = 5
-        };
+      
 
-        private static readonly HttpClient httpClient = new HttpClient
-        {
-            BaseAddress = new Uri("https://trackmypathapimanagement.azure-api.net/")
-        };
-
+       
 
         public MainPage()
         {
