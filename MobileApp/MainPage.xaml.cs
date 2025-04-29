@@ -143,7 +143,7 @@ namespace MobileApp
                 // CHANGED TO STOP LOCATION SERVICE INSTEAD OF CALLING StopLocationUpdates
                 if (locationService != null)
                 {
-                    locationService.Stop();
+                    locationService?.Stop();
                     locationService = null;
                 }
 
@@ -213,6 +213,10 @@ namespace MobileApp
 
                 // CHANGED TO CALL LOCATION SERVICE INSTEAD OF START LOCATION UPDATES
                 locationService = new LocationBackgroundService(currentTripId.Value);
+                locationService.OnLocationPosted = (Location loc) =>
+                {
+                    AddLocationToTrip(loc);
+                };
                 locationService.Start();
 
                 await DisplayAlert("Trip Started", $"Trip ID: {currentTripId}", "OK");
@@ -305,7 +309,7 @@ namespace MobileApp
         {
             tripLocations.Add(location);
 
-            // Add a Pin
+            // Add a Pin. COMMENT THIS OUT FOR OUR PRESENTATION
             var pin = new Pin
             {
                 Label = $"Point {tripLocations.Count}",

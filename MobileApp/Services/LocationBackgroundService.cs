@@ -20,6 +20,8 @@ namespace MobileApp.Services
         private readonly int locationIntervalMs = 10000; // 10 seconds
         private bool isRunning = false;
 
+        public Action<Location>? OnLocationPosted;
+
         public LocationBackgroundService(int tripId)
         {
             this.tripId = tripId;
@@ -72,6 +74,18 @@ namespace MobileApp.Services
                     var response = await httpClient.PostAsJsonAsync("api/Locations", locPayload);
                     var body = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Location Background POST: {(int)response.StatusCode} - {body}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Notify UI
+                        if (OnLocationPosted != null)
+                        {
+                            await MainThread.InvokeOnMainThreadAsync(() =>
+                            {
+                                OnLocationPosted(location);
+                            });
+                        }
+                    }
                 }
             }
             catch (Exception ex)
