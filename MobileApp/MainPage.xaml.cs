@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Controls.Maps;
+using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Devices.Sensors;
@@ -33,6 +33,22 @@ namespace MobileApp
         private System.Timers.Timer locationTimer;
         private const int userId = 1; // Replace with real user logic if needed
         private const int locationIntervalMs = 10000; // every 10 seconds
+        
+        private BlobService blobservice;
+
+        // new variables
+        private List<Location> tripLocations = new();
+        private Polyline tripPolyline = new Polyline
+        {
+            StrokeColor = Colors.Blue,
+            StrokeWidth = 5
+        };
+
+        private static readonly HttpClient httpClient = new HttpClient
+        {
+            BaseAddress = new Uri("https://trackmypathapimanagement.azure-api.net/")
+        };
+
 
         // NEW VARIABLE for background locations
         private LocationBackgroundService locationService;
@@ -54,6 +70,7 @@ namespace MobileApp
         {
             InitializeComponent();
             _ = InitializeMapAsync();
+            blobservice = new BlobService();
         }
 
         private async Task InitializeMapAsync()
@@ -79,7 +96,6 @@ namespace MobileApp
 
             // --- Create the map first ---
             map = new Microsoft.Maui.Controls.Maps.Map(mapBounds)
-
             {
                 IsShowingUser = true
             };
@@ -149,6 +165,19 @@ namespace MobileApp
                     locationService = null;
                 }
 
+
+                // New stuff to reset map after ending trip
+                tripLocations.Clear();
+                map.Pins.Clear();
+                map.MapElements.Clear();
+                tripPolyline = new Polyline
+                {
+                    StrokeColor = Colors.Blue,
+                    StrokeWidth = 5
+                };
+
+                // Recenter map on user
+                _ = ResetMapToUserLocation();
 
                 // New stuff to reset map after ending trip
                 tripLocations.Clear();
@@ -251,7 +280,6 @@ namespace MobileApp
                 locationTimer = null;
             }
         }
-
         // NOW UNUSED, SEE LocationBackgroundService IN THE Services FOLDER FOR REPLACEMENT
 
         private async Task PostCurrentLocation()
@@ -312,6 +340,7 @@ namespace MobileApp
             tripLocations.Add(location);
 
             // Add a Pin. COMMENT THIS OUT FOR OUR PRESENTATION
+
             var pin = new Pin
             {
                 Label = $"Point {tripLocations.Count}",
@@ -375,8 +404,11 @@ namespace MobileApp
                         await stream.CopyToAsync(fileStream);
                     }
 
+                    blobservice.SetLocalFilePath(localPath);
+                    await blobservice.UploadBlobAsync(fileName);
+
                     // Upload to API
-                    await UploadPhotoToApi(localPath);
+                    await UploadPhotoToApi(fileName);
                 }
             }
             catch (FeatureNotSupportedException)
