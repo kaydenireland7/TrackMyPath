@@ -1,11 +1,11 @@
-// src/App.jsx
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import MapComponent from './MapComponent';
 import { fetchLocations } from './services/LocationsService';
 import { fetchTrips } from './services/TripsService';
 import { fetchUsers } from './services/UsersService';
 import { fetchPhotos } from './services/PhotosService';
 import Login from './components/Login';
+import PhotosList from './components/PhotosList';
 
 function App() {
     const [locations, setLocations] = useState([]);
@@ -16,7 +16,9 @@ function App() {
     const [formattedUsers, setFormattedUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedTrip, setSelectedTrip] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState(null);  // New state to track selected location
 
+    // Fetch data once on initial load
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -39,6 +41,7 @@ function App() {
         loadData();
     }, []);
 
+    // Format the data into a usable structure once everything is loaded
     useEffect(() => {
         if (!loading && users.length && trips.length && locations.length && photos.length) {
             const formatted = formatData(users, trips, locations, photos);
@@ -68,6 +71,14 @@ function App() {
 
         return usersWithTrips;
     }
+
+    const handleMarkerClick = (location) => {
+        setSelectedLocation(location); // Set the selected location when a marker is clicked
+    };
+
+    const handleMapClick = () => {
+        setSelectedLocation(null); // Deselect location when clicking on the map
+    };
 
     if (loading) {
         return <p style={{ textAlign: 'center', marginTop: '100px' }}>Loading...</p>;
@@ -124,6 +135,7 @@ function App() {
                         const tripId = e.target.value;
                         const trip = selectedUser.trips.find(t => t.id === parseInt(tripId));
                         setSelectedTrip(trip || null);
+                        setSelectedLocation(null); // reset selected photo on trip change
                     }}
                     style={{
                         width: '100%',
@@ -144,19 +156,40 @@ function App() {
 
                 {selectedTrip && (
                     <div style={{ marginTop: '40px', backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                        <MapComponent trip={selectedTrip} />
+                        <MapComponent
+                            trip={selectedTrip}
+                            onMarkerClick={handleMarkerClick}
+                            onMapClick={handleMapClick}
+                        />
+
                         <div style={{ marginTop: '20px' }}>
                             <h3 style={{ borderBottom: '2px solid #1976d2', paddingBottom: '6px' }}>Trip Details</h3>
                             <p><strong>Trip Name:</strong> {selectedTrip.tripName?.trim() || 'No Trip Name'}</p>
                             <p><strong>Start Date:</strong> {selectedTrip.startTime ? new Date(selectedTrip.startTime).toLocaleString() : 'N/A'}</p>
                             <p><strong>End Date:</strong> {selectedTrip.endTime ? new Date(selectedTrip.endTime).toLocaleString() : 'N/A'}</p>
                         </div>
+
+                        {selectedLocation && selectedLocation.photo && (
+                            <div style={{ marginTop: '20px' }}>
+                                <img
+                                    src={`http://localhost:3001/blob/images/${selectedLocation.photo.fileUrl}`}
+                                    alt="Location"
+                                    style={{ width: '100%', height: 'auto', maxWidth: '600px', borderRadius: '8px' }}
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
-
             </div>
         </div>
     );
+
 }
 
 export default App;
+
+
+
+
+
+

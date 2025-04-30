@@ -6,7 +6,7 @@ const containerStyle = {
     height: '400px',
 };
 
-const MapComponent = ({ trip }) => {
+const MapComponent = ({ trip, onMarkerClick, onMapClick }) => {
     const [center, setCenter] = useState({ lat: 0, lng: 0 });
     const [path, setPath] = useState([]);
     const [mapLoaded, setMapLoaded] = useState(false);
@@ -40,6 +40,18 @@ const MapComponent = ({ trip }) => {
         };
     };
 
+    const handleMarkerClick = (location) => {
+        if (onMarkerClick) {
+            onMarkerClick(location);
+        }
+    };
+
+    const handleMapClick = () => {
+        if (onMapClick) {
+            onMapClick();
+        }
+    };
+
     return (
         <LoadScript googleMapsApiKey="AIzaSyBoGIKoRKdaOyfJ-zcfFyxVOGFCpXH1mjY">
             <GoogleMap
@@ -47,6 +59,7 @@ const MapComponent = ({ trip }) => {
                 center={center}
                 zoom={12}
                 onLoad={() => setMapLoaded(true)}
+                onClick={handleMapClick}
                 key={trip ? trip.id : "no-trip"}  // This forces the component to re-render on trip change
             >
                 {mapLoaded && path.length > 0 && (
@@ -75,12 +88,28 @@ const MapComponent = ({ trip }) => {
                         }}
                     />
                 )}
+
+                {mapLoaded &&
+                    trip.locations.map((loc) => (
+                        loc.photo && (
+                            <Marker
+                                key={loc.id}
+                                position={{ lat: parseFloat(loc.latitude), lng: parseFloat(loc.longitude) }}
+                                onClick={() => handleMarkerClick(loc)}
+                            />
+                        )
+                    ))}
             </GoogleMap>
         </LoadScript>
     );
 };
 
 export default MapComponent;
+
+
+
+
+
 
 
 
