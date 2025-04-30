@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\proxy-server",
+    "\\trackmypath-frontend",
+    "\\trackmypath-frontend\\public",
+    "\\trackmypath-frontend\\src",
+    "\\trackmypath-frontend\\src\\Components",
+    "\\trackmypath-frontend\\src\\services"
+  ],
+  "SelectedNode": "\\proxy-server\\server.js",
+  "PreviewInSolutionExplorer": false
+}

@@ -1,33 +1,22 @@
-// src/components/LocationsList.jsx
-import React, { useEffect, useState } from 'react';
-import { getLocations } from '../services/LocationsService';
+﻿import React from 'react';
 
-const LocationsList = () => {
-    const [locations, setLocations] = useState([]);
-
-    useEffect(() => {
-        async function fetchLocations() {
-            try {
-                const data = await getLocations();
-                setLocations(data);
-            } catch (error) {
-                console.error("Error fetching locations:", error);
-            }
-        }
-
-        fetchLocations();
-    }, []);
-
+function LocationsList({ locations }) {
     return (
         <div>
             <h2>Locations</h2>
             <ul>
-                {locations.map(location => (
-                    <li key={location.locationId}>{location.name}</li>
-                ))}
+                {locations.map((loc) => {
+                    console.log("Location object:", loc);
+                    return (
+                        <li key={loc.id}>
+                            Trip {loc.tripId} — ({loc.latitude}, {loc.longitude}) at {new Date(loc.timeStamp).toLocaleString()}
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );
-};
+}
 
 export default LocationsList;
+
