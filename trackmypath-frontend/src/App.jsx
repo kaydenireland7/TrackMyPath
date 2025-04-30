@@ -52,7 +52,8 @@ function App() {
     const handleLogin = (user) => {
         setSelectedUser(user);
     };
-
+    //This block of code works if the start and end time in trip is correct
+    /*
     function formatData(users, trips, locations, photos) {
         const locationsWithPhotos = locations.map(loc => ({
             ...loc,
@@ -71,6 +72,27 @@ function App() {
 
         return usersWithTrips;
     }
+    */
+    //Because that is not the case we use this instead ->
+    function formatData(users, trips, locations, photos) {
+        const locationsWithPhotos = locations.map(loc => ({
+            ...loc,
+            photo: photos.find(photo => photo.locationId === loc.id) || null,
+        }));
+
+        const tripsWithLocations = trips.map(trip => ({
+            ...trip,
+            locations: locationsWithPhotos.filter(loc => loc.tripId === trip.id),
+        }));
+
+        const usersWithTrips = users.map(user => ({
+            ...user,
+            trips: tripsWithLocations.filter(trip => trip.userId === user.id),
+        }));
+
+        return usersWithTrips;
+    }
+
 
     const handleMarkerClick = (location) => {
         setSelectedLocation(location); // Set the selected location when a marker is clicked
@@ -165,8 +187,19 @@ function App() {
                         <div style={{ marginTop: '20px' }}>
                             <h3 style={{ borderBottom: '2px solid #1976d2', paddingBottom: '6px' }}>Trip Details</h3>
                             <p><strong>Trip Name:</strong> {selectedTrip.tripName?.trim() || 'No Trip Name'}</p>
+
+                            {/* Display the first and last location's timestamps */}
+                            {selectedTrip.locations.length > 0 && (
+                                <>
+                                    <p><strong>Start Date:</strong> {new Date(selectedTrip.locations[0].timeStamp).toLocaleString()}</p>
+                                    <p><strong>End Date:</strong> {new Date(selectedTrip.locations[selectedTrip.locations.length - 1].timeStamp).toLocaleString()}</p>
+                                </>
+                            )}
+                            
+                            {/* Removed because trip time was incorrect 
                             <p><strong>Start Date:</strong> {selectedTrip.startTime ? new Date(selectedTrip.startTime).toLocaleString() : 'N/A'}</p>
                             <p><strong>End Date:</strong> {selectedTrip.endTime ? new Date(selectedTrip.endTime).toLocaleString() : 'N/A'}</p>
+                            */}
                         </div>
 
                         {selectedLocation && selectedLocation.photo && (
